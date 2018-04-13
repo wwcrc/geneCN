@@ -1,5 +1,4 @@
----
----
+
 # geneCN
 
 GeneCN is designed to perform gene-specific copy number analysis from sequence capture data of cancer samples.  It requires [Bio-DB-HTS][] [version 2.10][BDHv210] or higher. Preparation of the input bed file requires [bedtools].
