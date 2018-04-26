@@ -4,7 +4,7 @@
 # 11/11/2015
 # Copyright (C) 2015 14MG, 2017-2018 University of Glasgow
 # Author: Susie Cooke
-# Version 2.0
+# Version 2.0.1
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -26,8 +26,7 @@ data <- read.csv(args[1], header = FALSE) # Output of perl script
 static <- read.table(args[2], sep = "\t") # Static file of annotated bin regions
 SampleID <- args[3] # Sample name, will appear in output file names and headers
 GenomeBuild <- args[4] # Reference genome version
-thresholds <- read.table(args[5], sep = "\t", header = TRUE) # Static file of thresholds for calling
-gender <- args[6]
+genders <- c('female', 'male', 'unknown')
 
 if (length(args) < 4 || length(args) > 6) {
   stop("The following arguments are needed: data file, regions file, sample name, genome build, (thresholds file), (sample gender)", call.=FALSE)
@@ -35,10 +34,13 @@ if (length(args) < 4 || length(args) > 6) {
   thresholds <- 'empty'
   gender <- 'unknown'
 } else if (length(args) == 5) {
+  thresholds <- read.table(args[5], sep = "\t", header = TRUE) # Static file of thresholds for calling
   gender <- 'unknown'
+} else if (length(args) == 6) {
+  thresholds <- read.table(args[5], sep = "\t", header = TRUE) # Static file of thresholds for calling
+  gender <- args[6]
 }
 
-genders <- c('female', 'male', 'unknown')
 if (!gender %in% c(genders)) {
   stop("Specified gender must be female/male", call.=FALSE)
 }
@@ -193,8 +195,8 @@ dev.off()
 ################################## Chromosome by Chromosome Plots ##################################
 
 # Colours for gene features
-featurecolour1 <- 'purple'
-featurecolour2 <- 'darkgreen'
+featurecolour1 <- 'red'
+featurecolour2 <- 'deepskyblue'
 
 for (chr in Chrs) {
   pdf(paste(SampleID, chr, 'plot.pdf', sep = "_"), width = 30)
@@ -205,11 +207,11 @@ for (chr in Chrs) {
   plot(data[,4][data$V1 == chr], pch = 19, cex = 0.5, ylim = myYlimits, main = paste(SampleID, '_', chr), ylab = 'Log2 Ratio of Normalised Depths', xlab = 'Bin Index', type = "n", axes = TRUE)
   for (feature in unique(static$V5[static$V1 == chr])) {
     if (feature %in% mySpecialCases) {
-      points(which(static$V5[static$V1 == chr] == feature), data[,4][which(static$V5[static$V1 == chr] == feature)], cex = 0.5, pch = 19)
+      points(which(static$V5[static$V1 == chr] == feature), data[,4][static$V1 == chr][which(static$V5[static$V1 == chr] == feature)], pch = 19)
     } else if (is.element(feature, col1features)){
-      points(which(static$V5[static$V1 == chr] == feature), data[,4][which(static$V5[static$V1 == chr] == feature)], cex = 0.5, pch = 19, col = featurecolour1)
+      points(which(static$V5[static$V1 == chr] == feature), data[,4][static$V1 == chr][which(static$V5[static$V1 == chr] == feature)], pch = 19, col = featurecolour1)
     } else if (is.element(feature, col2features)){
-      points(which(static$V5[static$V1 == chr] == feature), data[,4][which(static$V5[static$V1 == chr] == feature)], cex = 0.5, pch = 19, col = featurecolour2)
+      points(which(static$V5[static$V1 == chr] == feature), data[,4][static$V1 == chr][which(static$V5[static$V1 == chr] == feature)], pch = 19, col = featurecolour2)
     }
   }
   dev.off()
