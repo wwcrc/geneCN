@@ -201,7 +201,7 @@ featurecolour2 <- 'deepskyblue'
 for (chr in Chrs) {
   pdf(paste(SampleID, chr, 'plot.pdf', sep = "_"), width = 30)
   myFeatureList <- unique(static$V5[static$V1 == chr])
-  myFeatureList <- myFeatureList[grepl("[^'background''other']", myFeatureList)]
+  myFeatureList <- myFeatureList[!myFeatureList %in% mySpecialCases]
   col1features <- myFeatureList[c(TRUE, FALSE)]
   col2features <- myFeatureList[c(FALSE, TRUE)]
   plot(data[,4][data$V1 == chr], pch = 19, cex = 0.5, ylim = myYlimits, main = paste(SampleID, '_', chr), ylab = 'Log2 Ratio of Normalised Depths', xlab = 'Bin Index', type = "n", axes = TRUE)
