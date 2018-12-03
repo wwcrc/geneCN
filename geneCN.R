@@ -4,7 +4,7 @@
 # 11/11/2015
 # Copyright (C) 2015 14MG, 2017-2018 University of Glasgow
 # Author: Susie Cooke
-# Version 2.0.1
+# Version 2.0.2
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -61,7 +61,7 @@ colour1 <- 'deepskyblue'
 colour2 <- 'darkslateblue'
 
 # Chromosomes to be plotted
-Chrs <- c(levels(static$V1))
+Chrs <- unique(static$V1)
 
 # Phasing of colours for data points
 mycol1Chrs <- Chrs[c(TRUE, FALSE)]
@@ -199,7 +199,7 @@ featurecolour1 <- 'red'
 featurecolour2 <- 'deepskyblue'
 
 for (chr in Chrs) {
-  pdf(paste(SampleID, chr, 'plot.pdf', sep = "_"), width = 30)
+  pdf(paste(SampleID, chr, 'plot.pdf', sep = "_"), width = 20)
   myFeatureList <- unique(static$V5[static$V1 == chr])
   myFeatureList <- myFeatureList[!myFeatureList %in% mySpecialCases]
   col1features <- myFeatureList[c(TRUE, FALSE)]
