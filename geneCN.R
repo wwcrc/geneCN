@@ -4,7 +4,7 @@
 # 11/11/2015
 # Copyright (C) 2015 14MG, 2017-2018 University of Glasgow
 # Author: Susie Cooke
-# Version 2.0.2
+# Version 2.0.3
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -187,7 +187,9 @@ for(chr in Chrs) {
       myColour <- colour2
     }
     points(x, y, col = myColour, cex = 0.5, pch = 19)
-  }
+}
+
+abline(h=median(data[static[,5] == 'background', 4]), col = 'white')
 rm(x, y, myStart, myEnd, chr)
 
 dev.off()
@@ -205,6 +207,7 @@ for (chr in Chrs) {
   col1features <- myFeatureList[c(TRUE, FALSE)]
   col2features <- myFeatureList[c(FALSE, TRUE)]
   plot(data[,4][data$V1 == chr], pch = 19, cex = 0.5, ylim = myYlimits, main = paste(SampleID, '_', chr), ylab = 'Log2 Ratio of Normalised Depths', xlab = 'Bin Index', type = "n", axes = TRUE)
+  abline(h=median(data[static[,5] == 'background', 4]), col = 'grey')
   for (feature in unique(static$V5[static$V1 == chr])) {
     if (feature %in% mySpecialCases) {
       points(which(static$V5[static$V1 == chr] == feature), data[,4][static$V1 == chr][which(static$V5[static$V1 == chr] == feature)], pch = 19)
@@ -240,7 +243,7 @@ myQCval <- median(mySDs)
 rm(mySDs, feature)
 
 # Thresholds
-myPvalCutoff <- 0.01
+myPvalCutoff <- 0.001
 
 # Define reference distribution
 myBackground <- data[static[,5] == 'background', 4]
