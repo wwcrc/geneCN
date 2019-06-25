@@ -2,9 +2,8 @@
 
 # Copy number analysis script
 # 11/11/2015
-# Copyright (C) 2015 14MG, 2017-2018 University of Glasgow
+# Copyright (C) 2015 14MG, 2017-2019 University of Glasgow
 # Author: Susie Cooke
-# Version 2.0.3
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -19,6 +18,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+geneCN.version <- 'geneCN 2.0.3'
+
 ########################## Get Command Line Options ##################################
 
 args <- commandArgs(trailingOnly = TRUE) # Read in command line parameters
@@ -28,17 +29,26 @@ SampleID <- args[3] # Sample name, will appear in output file names and headers
 GenomeBuild <- args[4] # Reference genome version
 genders <- c('female', 'male', 'unknown')
 
-if (length(args) < 4 || length(args) > 6) {
-  stop("The following arguments are needed: data file, regions file, sample name, genome build, (thresholds file), (sample gender)", call.=FALSE)
-} else if (length(args) == 4) {
+if (length(args) < 4 || length(args) > 7) {
+  stop("The following arguments are needed: data file, regions file, sample name, genome build, (thresholds file), (sample gender), (extra versions)", call.=FALSE)
+}
+
+if (length(args) >= 5 && args[5] != '--') {
+  thresholds <- read.table(args[5], sep = "\t", header = TRUE) # Static file of thresholds for calling
+} else {
   thresholds <- 'empty'
-  gender <- 'unknown'
-} else if (length(args) == 5) {
-  thresholds <- read.table(args[5], sep = "\t", header = TRUE) # Static file of thresholds for calling
-  gender <- 'unknown'
-} else if (length(args) == 6) {
-  thresholds <- read.table(args[5], sep = "\t", header = TRUE) # Static file of thresholds for calling
+}
+
+if (length(args) >= 6 && args[6] != '--') {
   gender <- args[6]
+} else {
+  gender <- 'unknown'
+}
+
+if (length(args) >= 7 && args[7] != '--') {
+  versionText <- gsub('VERSION', geneCN.version, args[7], fixed = TRUE)
+} else {
+  versionText <- geneCN.version
 }
 
 if (!gender %in% c(genders)) {
@@ -170,7 +180,7 @@ myCappedData <- capped(data[,4], myDataMin, myDataMax)
 myYlimits <- limit(myCappedData, ymin, ymax)
 
 # Generate plots as .pdf
-pdf(paste(SampleID, '_CNplot.pdf', sep = ""), width = 30)
+pdf(paste(SampleID, '_CNplot.pdf', sep = ""), title = sprintf('%s (%s)', SampleID, versionText), width = 30)
 
 # Set up plot area but don't add any data
 plot(data[,4], ylab = 'Log2 Ratio of Normalised Depths', ylim = myYlimits, 
@@ -201,7 +211,7 @@ featurecolour1 <- 'red'
 featurecolour2 <- 'deepskyblue'
 
 for (chr in Chrs) {
-  pdf(paste(SampleID, chr, 'plot.pdf', sep = "_"), width = 20)
+  pdf(paste(SampleID, chr, 'plot.pdf', sep = "_"), title = sprintf('%s %s (%s)', SampleID, chr, versionText), width = 20)
   myFeatureList <- unique(static$V5[static$V1 == chr])
   myFeatureList <- myFeatureList[!myFeatureList %in% mySpecialCases]
   col1features <- myFeatureList[c(TRUE, FALSE)]
