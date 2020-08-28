@@ -2,7 +2,7 @@
 
 # Copy number analysis script
 # 11/11/2015
-# Copyright (C) 2015 14MG, 2017-2019 University of Glasgow
+# Copyright (C) 2015 14MG, 2017-2020 University of Glasgow
 # Author: Susie Cooke
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-geneCN.version <- 'geneCN 2.0.3'
+geneCN.version <- 'geneCN 2.1'
 
 ########################## Get Command Line Options ##################################
 
@@ -202,7 +202,7 @@ for(chr in Chrs) {
 abline(h=median(data[static[,5] == 'background', 4]), col = 'white')
 rm(x, y, myStart, myEnd, chr)
 
-dev.off()
+invisible(dev.off())
 
 ################################## Chromosome by Chromosome Plots ##################################
 
@@ -210,8 +210,9 @@ dev.off()
 featurecolour1 <- 'red'
 featurecolour2 <- 'deepskyblue'
 
+pdf(paste(SampleID, '_perchr_CNplots.pdf', sep = ""), title = sprintf('%s per-chromosome (%s)', SampleID, versionText), width = 20)
+
 for (chr in Chrs) {
-  pdf(paste(SampleID, chr, 'plot.pdf', sep = "_"), title = sprintf('%s %s (%s)', SampleID, chr, versionText), width = 20)
   myFeatureList <- unique(static$V5[static$V1 == chr])
   myFeatureList <- myFeatureList[!myFeatureList %in% mySpecialCases]
   col1features <- myFeatureList[c(TRUE, FALSE)]
@@ -227,9 +228,10 @@ for (chr in Chrs) {
       points(which(static$V5[static$V1 == chr] == feature), data[,4][static$V1 == chr][which(static$V5[static$V1 == chr] == feature)], pch = 19, col = featurecolour2)
     }
   }
-  dev.off()
 }
 rm(featurecolour1, featurecolour2, myFeatureList, col1features, col2features, feature, chr)
+
+invisible(dev.off())
 
 ################################### Gene CN state Calling ######################################
 
@@ -267,6 +269,7 @@ cat('##fileDate=',format(Sys.Date()),"\n",
     '##CollaboratorSampleID=',SampleID,"\n",
     '##GenomeBuild=',GenomeBuild,"\n",
     '##QCvalue=', myQCval,"\n",
+    '##PipelineVersion=',versionText,"\n",
     '##Chr="The chromosome of the feature"',"\n",
     '##NA="Column not in use"',"\n",
     '##L0="zero-based coordinate for the start of the feature"',"\n",
