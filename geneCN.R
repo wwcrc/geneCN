@@ -2,7 +2,7 @@
 
 # Copy number analysis script
 # 11/11/2015
-# Copyright (C) 2015 14MG, 2017-2020 University of Glasgow
+# Copyright (C) 2015 14MG, 2017-2020, 2022 University of Glasgow
 # Author: Susie Cooke
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,13 +18,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-geneCN.version <- 'geneCN 2.1'
+geneCN.version <- 'geneCN 2.2'
 
 ########################## Get Command Line Options ##################################
 
 args <- commandArgs(trailingOnly = TRUE) # Read in command line parameters
 data <- read.csv(args[1], header = FALSE) # Output of perl script
-static <- read.table(args[2], sep = "\t") # Static file of annotated bin regions
+static <- read.table(args[2], sep = "\t", colClasses = c('character', NA, NA, NA, 'factor', NA)) # Static file of annotated bin regions
 SampleID <- args[3] # Sample name, will appear in output file names and headers
 GenomeBuild <- args[4] # Reference genome version
 genders <- c('female', 'male', 'unknown')
@@ -241,7 +241,7 @@ myFeatureL1 <- list()
 myFeatureH1 <- list()
 
 for(feature in levels(static[,5])) {
-  myFeatureChr[[feature]] <- droplevels(unique(static[static[,5] == feature , 1]))
+  myFeatureChr[[feature]] <- unique(static[static[,5] == feature , 1])
   myFeatureL1[[feature]] <- min(static[static[,5] == feature, 2])
   myFeatureH1[[feature]] <- max(static[static[,5] == feature, 3])
 }
@@ -289,34 +289,34 @@ for(feature in levels(static[,5])) {
     myResult <- t.test(myBackground, myGene)
     myMeanDiff <- mean(myGene, na.rm = TRUE) - mean(myBackground, na.rm = TRUE)
     if (thresholds == 'empty' || gender == 'unknown') {
-      cat(levels(myFeatureChr[[feature]]),'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myResult$p.value
-          ,levels(myFeatureChr[[feature]]),'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myResult$p.value,myMeanDiff, sep = "\t")
+      cat(myFeatureChr[[feature]],'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myResult$p.value,
+          myFeatureChr[[feature]],'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myResult$p.value,myMeanDiff, sep = "\t")
       cat("\n")
     }
     if (gender == 'female') {
       if ((myMeanDiff > thresholds$upper_limit_female[thresholds$Feature == feature]) && (myResult$p.value < myPvalCutoff)) {
         myState <- 'gain'
-        cat(levels(myFeatureChr[[feature]]),'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myState
-            ,levels(myFeatureChr[[feature]]),'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myState,myMeanDiff, sep = "\t")
+        cat(myFeatureChr[[feature]],'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myState,
+            myFeatureChr[[feature]],'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myState,myMeanDiff, sep = "\t")
         cat("\n")
       }
       else if ((myMeanDiff < thresholds$lower_limit_female[thresholds$Feature == feature]) && (myResult$p.value < myPvalCutoff)) {
         myState <- 'loss'
-        cat(levels(myFeatureChr[[feature]]),'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myState
-            ,levels(myFeatureChr[[feature]]),'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myState,myMeanDiff, sep = "\t")
+        cat(myFeatureChr[[feature]],'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myState,
+            myFeatureChr[[feature]],'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myState,myMeanDiff, sep = "\t")
         cat("\n")
       }
     } else if (gender == 'male') {
       if ((myMeanDiff > thresholds$upper_limit_male[thresholds$Feature == feature]) && (myResult$p.value < myPvalCutoff)) {
         myState <- 'gain'
-        cat(levels(myFeatureChr[[feature]]),'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myState
-            ,levels(myFeatureChr[[feature]]),'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myState,myMeanDiff, sep = "\t")
+        cat(myFeatureChr[[feature]],'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myState,
+            myFeatureChr[[feature]],'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myState,myMeanDiff, sep = "\t")
         cat("\n")
       }
       else if ((myMeanDiff < thresholds$lower_limit_male[thresholds$Feature == feature]) && (myResult$p.value < myPvalCutoff)) {
         myState <- 'loss'
-        cat(levels(myFeatureChr[[feature]]),'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myState
-          ,levels(myFeatureChr[[feature]]),'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myState,myMeanDiff, sep = "\t")
+        cat(myFeatureChr[[feature]],'.',myFeatureL1[[feature]] -1,myFeatureL1[[feature]],feature,myState,
+            myFeatureChr[[feature]],'.',myFeatureH1[[feature]] -1,myFeatureH1[[feature]],feature,myState,myMeanDiff, sep = "\t")
         cat("\n")
       }
     } 
